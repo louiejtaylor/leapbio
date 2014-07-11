@@ -5,9 +5,9 @@
     <style>
       canvas { background-color: black; position: fixed; left: 0px; top: 0px; }
     </style>
-    <script src="three.min.js"></script>
-    <script src="leap.min.js"></script>
-    <script src="OBJLoader.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/leap.min.js"></script>
+    <script src="js/OBJLoader.js"></script>
 	<script>
 
 
@@ -21,7 +21,7 @@
       document.body.appendChild(renderer.domElement);
       camera.position.z = 400;
       cube = new THREE.Mesh( new THREE.CubeGeometry( 400, 2, 200 ), new THREE.MeshNormalMaterial() );
-      scene.add(cube);
+      //scene.add(cube);
 
 		// Create a light, set its position, and add it to the scene.
 		var light = new THREE.PointLight(0xffffff);
@@ -46,7 +46,7 @@
 				// scene.add(object);
 
 				var loader = new THREE.OBJLoader( manager );
-				loader.load( 'male02.obj', function ( object ) {
+				loader.load( 'obj/male02.obj', function ( object ) {
 
 					object.traverse( function ( child ) {
 
@@ -71,8 +71,8 @@
 		var x = hand.palmPosition[0];
 		var y = hand.palmPosition[1];
 		var z = hand.palmPosition[2];
-		cube.position.x = x;
-		cube.position.y = y-200;
+		//cube.position.x = x;
+		//cube.position.y = y-200;
 		//if (hand.pitch > 0){
 		//	cube.rotation.x  -= 1;
 		//}
