@@ -1,0 +1,96 @@
+
+<html>
+  <head>
+    <title>Leap movement tests</title>
+    <style>
+      canvas { background-color: black; position: fixed; left: 0px; top: 0px; }
+    </style>
+    <script src="three.min.js"></script>
+    <script src="leap.min.js"></script>
+    <script src="OBJLoader.js"></script>
+	<script>
+
+
+
+
+	var init = function(){
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.10, 1000);
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      camera.position.z = 400;
+      cube = new THREE.Mesh( new THREE.CubeGeometry( 400, 2, 200 ), new THREE.MeshNormalMaterial() );
+      scene.add(cube);
+
+		// Create a light, set its position, and add it to the scene.
+		var light = new THREE.PointLight(0xffffff);
+		light.position.set(-100,200,100);
+		scene.add(light);
+
+
+
+				var manager = new THREE.LoadingManager();
+
+				manager.onProgress = function ( item, loaded, total ) {
+
+					console.log( item, loaded, total );
+
+				};
+		
+
+
+				// model
+				var objMaterial = new THREE.MeshLambertMaterial( { color: 0xFF0000 });
+				// var object = new THREE.Mesh(new THREE.CylinderGeometry(50, 50, 200, 50, 50, false), objMaterial);
+				// scene.add(object);
+
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'male02.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+
+							child.material = objMaterial;
+
+						}
+
+					} );
+
+					object.position.y = - 80;
+					scene.add( object );
+
+				} );
+
+
+      Leap.loop(function(frame) {
+	var hand = frame.hands[0];
+	if (frame.hands.length == 1){
+	if (hand.grabStrength < .2){
+		var x = hand.palmPosition[0];
+		var y = hand.palmPosition[1];
+		var z = hand.palmPosition[2];
+		cube.position.x = x;
+		cube.position.y = y-200;
+		//if (hand.pitch > 0){
+		//	cube.rotation.x  -= 1;
+		//}
+		cube.rotation.x = hand.pitch();
+		cube.rotation.z = hand.roll();
+
+	}}
+	
+	//cube.rotation.x += .01
+
+	//if(frame.gestures.length > 0) console.log(frame.gestures);
+
+        renderer.render(scene, camera);
+      });
+	};
+    </script>
+  </head>
+  <body onload="setTimeout(init, 100);">
+    <div id="out"></div>
+  </body>
+</html>
