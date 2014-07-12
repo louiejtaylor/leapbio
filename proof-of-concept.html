@@ -38,11 +38,15 @@ function buildAxis( src, dst, colorHex, dashed ) {
         } else {
                 //mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
         }
-	mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+	if (colorHex != "0xFFFFFF"){
+		mat = new THREE.LineBasicMaterial({ linewidth: 6, color: colorHex });
+	}else{
+		mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+	}
 
         geom.vertices.push( src.clone() );
         geom.vertices.push( dst.clone() );
-        geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
+        //geom.computeLineDistances(); // Important if using dashed lines
 
         var axis = new THREE.Line( geom, mat, THREE.LinePieces );
 
@@ -60,9 +64,11 @@ function buildAxis( src, dst, colorHex, dashed ) {
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      cube = new THREE.Mesh( new THREE.CubeGeometry( 400, 2, 200 ), new THREE.MeshNormalMaterial() );
+      cube = new THREE.Mesh( new THREE.SphereGeometry( 3, 10, 10), new THREE.MeshNormalMaterial() );
+	cube.position.z += 20;
       //scene.add(cube);
-	scene.add(buildAxes(600));
+	var axes = buildAxes(600) 
+	scene.add(axes);
 	camera.lookAt(new THREE.Vector3(0,0,0));
 
 		// Create a light, set its position, and add it to the scene.
@@ -108,8 +114,37 @@ function buildAxis( src, dst, colorHex, dashed ) {
 				} );
 	var counter = 0;
 	var prevroll = -999;
+	var currMode = 0;
+	var d = new Date();
+	var lastSwipe = d.getTime();
 
-      Leap.loop(function(frame) {
+
+	function modeChange(dir){
+		if (dir == 1){
+			if (currMode == 2){
+				currMode = -1;
+			}
+			currMode += 1;
+		} else {
+			if (currMode == 0){
+				currMode = 3
+			}
+			currMode -= 1;
+		}
+		scene.remove(axes);
+		scene.remove(cube);
+		if (currMode == 0){
+			scene.add(axes);
+		} else if (currMode == 1){
+			scene.add(cube);
+			scene.add(axes);
+		} else if (currMode == 2){
+
+		}
+		console.log(currMode);
+	}
+
+      Leap.loop({enableGestures: true}, function(frame) {
 	if (prevroll == -999 && frame.hands.length > 0){
 		prevroll = frame.hands[0].roll();
 		console.log(prevroll);
@@ -120,30 +155,59 @@ function buildAxis( src, dst, colorHex, dashed ) {
 	if (frame.hands.length == 1){
 		var hand = frame.hands[0];
 			//counter += .01;
-	if (hand.grabStrength < .2){
-		counter += (hand.roll() - prevroll)/10;
+	if (hand.grabStrength < .2 && (currMode == 0 || currMode == 2)){
+		counter += (hand.roll() - prevroll)/30;
+		//prevroll = hand.roll();
 		camera.position.x = -Math.sin(counter)*400;
 		camera.position.z = Math.cos(counter)*400;
 		camera.lookAt(new THREE.Vector3(0,0,0));
 		
-	/*
+	} else if (currMode == 1){
 		var x = hand.palmPosition[0];
 		var y = hand.palmPosition[1];
 		var z = hand.palmPosition[2];
-		//cube.position.x = x;
-		//cube.position.y = y-200;
+		cube.position.x = x;
+		cube.position.y = y-200;
 		//if (hand.pitch > 0){
 		//	cube.rotation.x  -= 1;
 		//}
 		//cube.rotation.x = hand.pitch();
 		//cube.rotation.z = hand.roll();
-	*/
+	
 
 	}}
 	
 	//cube.rotation.x += .01
+	//console.log(d.getTime());
+	
+	var d2 = new Date()
+	//console.log(frame.gestures);
+	for (var i=0; i<frame.gestures.length; i++){
+		var gesture = frame.gestures[i];
+		if (gesture.type == "swipe" && (d2.getTime() - lastSwipe) > 1000) {
+			lastSwipe = d2.getTime();
+			if (gesture.direction[0] > 0){
+				modeChange(1);
+			} else {
+				modeChange(-1);
+			}
+			
+		} else if (gesture.type == "circle"){
+			var clockwise = false;
+			var pointableID = gesture.pointableIds[0];
+			var direction = frame.pointable(pointableID).direction;
+			var dotProduct = Leap.vec3.dot(direction, gesture.normal);
 
-	//if(frame.gestures.length > 0) console.log(frame.gestures);
+			if (dotProduct  >  0) clockwise = true;	
+			if (clockwise){
+				camera.position.y -= .1;
+				camera.position.z -= .2;
+			} else {
+				camera.position.y += .1;
+				camera.position.z += .2;
+			}
+		}
+	}
 
         renderer.render(scene, camera);
       });
