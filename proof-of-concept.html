@@ -117,6 +117,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
 	var currMode = 0;
 	var d = new Date();
 	var lastSwipe = d.getTime();
+	var distFactor = 400;
 
 
 	function modeChange(dir){
@@ -158,8 +159,8 @@ function buildAxis( src, dst, colorHex, dashed ) {
 	if (hand.grabStrength < .2 && (currMode == 0 || currMode == 2)){
 		counter += (hand.roll() - prevroll)/30;
 		//prevroll = hand.roll();
-		camera.position.x = -Math.sin(counter)*400;
-		camera.position.z = Math.cos(counter)*400;
+		camera.position.x = -Math.sin(counter)*distFactor;
+		camera.position.z = Math.cos(counter)*distFactor;
 		camera.lookAt(new THREE.Vector3(0,0,0));
 		
 	} else if (currMode == 1){
@@ -176,6 +177,10 @@ function buildAxis( src, dst, colorHex, dashed ) {
 	
 
 	}}
+	camera.position.x = -Math.sin(counter)*distFactor;
+	camera.position.y = distFactor/2;
+	camera.position.z = Math.cos(counter)*distFactor;
+	camera.lookAt(new THREE.Vector3(0,0,0));
 	
 	//cube.rotation.x += .01
 	//console.log(d.getTime());
@@ -200,11 +205,9 @@ function buildAxis( src, dst, colorHex, dashed ) {
 
 			if (dotProduct  >  0) clockwise = true;	
 			if (clockwise){
-				camera.position.y -= .1;
-				camera.position.z -= .2;
+				distFactor -= 1;
 			} else {
-				camera.position.y += .1;
-				camera.position.z += .2;
+				distFactor += 1;
 			}
 		}
 	}
