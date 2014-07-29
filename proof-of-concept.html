@@ -64,8 +64,8 @@ function buildAxis( src, dst, colorHex, dashed ) {
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      cube = new THREE.Mesh( new THREE.SphereGeometry( 3, 10, 10), new THREE.MeshNormalMaterial() );
-	cube.position.z += 20;
+      cube = new THREE.Mesh( new THREE.SphereGeometry( 2, 10, 10), new THREE.MeshNormalMaterial() );
+	cube.position.z += 40;
       //scene.add(cube);
 	var axes = buildAxes(600) 
 	scene.add(axes);
@@ -96,7 +96,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
 				// scene.add(object);
 
 				var loader = new THREE.OBJLoader( manager );
-				loader.load( 'obj/male02.obj', function ( object ) {
+				loader.load( 'obj/heart2.obj', function ( object ) {
 
 					object.traverse( function ( child ) {
 
@@ -108,7 +108,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
 
 					} );
 
-					object.position.set(0,-80,0);
+					object.position.set(0,0,0);
 					scene.add( object );
 
 				} );
@@ -138,7 +138,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
 			scene.add(axes);
 		} else if (currMode == 1){
 			scene.add(cube);
-			scene.add(axes);
+			//scene.add(axes);
 		} else if (currMode == 2){
 
 		}
